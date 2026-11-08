@@ -10,10 +10,9 @@
 
 本書では、視覚的に理解しやすい解説と **300点以上のオリジナル図解** を通じて、現在の AI Agents を活用するために必要な実践的なツールや概念を学ぶことができます。
 
-<img src="/images/cover.webp" width="400" alt="表紙">
+<img src="images/cover.webp" width="400" alt="表紙">
 
 <br>
-
 
 ## Table of Contents - Build a `TinyAgent` from Scratch!
 
@@ -21,39 +20,37 @@
 
 すべてのサンプルは、Google Colab の T4 GPU を使用して **無料** で実行できます。追加費用をかけることなく、ローカル環境またはクラウド環境のどちらでも実行できます。
 
-
-| Chapter  | Notebook  |
-|---|---|
-| 1章：導入部 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter01/chapter01.ipynb) |
-| 2章：大規模言語モデル | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter02/chapter02.ipynb) |
-| 3章：大規模言語モデルの推論 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter03/chapter03.ipynb) |
-| 4章：記憶 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter04/chapter04.ipynb) |
+| Chapter                                   | Notebook                                                                                                                                                                                                |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1章：導入部                               | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter01/chapter01.ipynb) |
+| 2章：大規模言語モデル                     | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter02/chapter02.ipynb) |
+| 3章：大規模言語モデルの推論               | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter03/chapter03.ipynb) |
+| 4章：記憶                                 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter04/chapter04.ipynb) |
 | 5章：ツールの使用、学習、およびプロトコル | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter05/chapter05.ipynb) |
-| 6章：計画と内省 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter06/chapter06.ipynb) |
-| 7章：エージェントの評価 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter07/chapter07.ipynb) |
-| 8章：マルチエージェントシステム | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter08/chapter08.ipynb) |
-| 9章：マルチモーダル理解 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter09/chapter09.ipynb) |
-| 10章：エージェントとLLMsのコーディング | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter10/chapter10.ipynb) |
+| 6章：計画と内省                           | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter06/chapter06.ipynb) |
+| 7章：エージェントの評価                   | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter07/chapter07.ipynb) |
+| 8章：マルチエージェントシステム           | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter08/chapter08.ipynb) |
+| 9章：マルチモーダル理解                   | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter09/chapter09.ipynb) |
+| 10章：エージェントとLLMsのコーディング    | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HandsOnLLM/An-Illustrated-Guide-To-AI-Agents/blob/main/chapter10/chapter10.ipynb) |
 
 > [!TIP]
 > ローカル環境に必要なすべてのパッケージをインストールするためのクイックスタートガイドは、[setup](.setup/) フォルダを確認してください。
 
-
 ## Reviews
 
-> "*著者たちは卓越した開発者であり、本書は彼らの深い知識を証明するものです。豊富な図解と実践的な TinyAgent の演習によって、概念を親しみやすく、直感的に、そして楽しく学べるようになっています。*"
+> "_著者たちは卓越した開発者であり、本書は彼らの深い知識を証明するものです。豊富な図解と実践的な TinyAgent の演習によって、概念を親しみやすく、直感的に、そして楽しく学べるようになっています。_"
 >
 > **Chip Huyen** - [AI Engineering](https://www.oreilly.com/library/view/ai-engineering/9781098166298/) および [Designing Machine Learning Systems](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/) の著者
 
 ---
 
-> "*AI システムの教え方についてはこれまで多くのことを考えてきましたが、本書には、現代の AI Agents という広大な領域を、図解によってこれほど明快に説明できるのかと驚かされました。Maarten と Jay は、この急速に進化する分野における普遍的な概念を見極め、わかりやすく説明するという素晴らしい仕事をしています。現代の Agent の仕組みや構築方法を理解したい人に、私が最初に薦める一冊になると思います。*"
+> "_AI システムの教え方についてはこれまで多くのことを考えてきましたが、本書には、現代の AI Agents という広大な領域を、図解によってこれほど明快に説明できるのかと驚かされました。Maarten と Jay は、この急速に進化する分野における普遍的な概念を見極め、わかりやすく説明するという素晴らしい仕事をしています。現代の Agent の仕組みや構築方法を理解したい人に、私が最初に薦める一冊になると思います。_"
 >
 > **Omar Khattab** - MIT EECS 准教授
 
 ---
 
-> "*Grootendorst と Alammar は、Tokenization から Multi-Agent Systems まで、AI Agent の技術スタック全体を、魅力的なビジュアル形式で解説しています。この分野が進化し続ける中でも、本書はテーマを非常に網羅的に扱っているため、今後も有用なリファレンスとして活用できるでしょう。*"
+> "_Grootendorst と Alammar は、Tokenization から Multi-Agent Systems まで、AI Agent の技術スタック全体を、魅力的なビジュアル形式で解説しています。この分野が進化し続ける中でも、本書はテーマを非常に網羅的に扱っているため、今後も有用なリファレンスとして活用できるでしょう。_"
 >
 > **Ofir Press** - Meta FAIR の Research Scientist、SWE-bench および SWE-agent の共同著者
 
@@ -65,10 +62,9 @@
 
 本書の内容を補完し、新しく [興味深いトピック](bonus/) をさらに深く解説するため、無料のビジュアルガイドも継続的に制作しています。
 
-| [Gemma 4 のビジュアルガイド](https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-gemma-4) | [Multimodal Generation のビジュアルガイド](https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-multimodal-generation) |
-|:---:|:---:|
+|                            [Gemma 4 のビジュアルガイド](https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-gemma-4)                             |                                   [Multimodal Generation のビジュアルガイド](https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-multimodal-generation)                                    |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | [<img src="bonus/images/gemma-4.png" width="400" alt="Gemma 4 のビジュアルガイド">](https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-gemma-4) | [<img src="bonus/images/multimodal-generation.png" width="400" alt="Multimodal Generation のビジュアルガイド">](https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-multimodal-generation) |
-
 
 ## A Unique Way of Learning
 
@@ -95,7 +91,6 @@
 こうした変更が `TinyAgent` に与える影響をわかりやすく示し、学習のハードルを下げるために、diff を活用しています。
 
 ![images/diffs.png](images/diffs.png)
-
 
 ## Citation
 
