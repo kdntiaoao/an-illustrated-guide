@@ -66,4 +66,4 @@ Give only the function definition, no explanation or markdown formatting."""
 best_answer, best_score = max(responses, key=lambda x: x[1])
 
 # Show all scores
-[response[1] for response in responses]
+print([response[1] for response in responses])
