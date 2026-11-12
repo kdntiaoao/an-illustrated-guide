@@ -1,6 +1,6 @@
 from illustrated_agents.llm import LLM
 from illustrated_agents.trajectory import Trajectory
-from illustrated_agents.memory import Memory, TrimmingMemory
+from illustrated_agents.memory import Memory, SummarizationMemory
 
 class TinyAgent:
     """最小限のモジュール式の教育エージェント フレームワーク"""
@@ -33,13 +33,10 @@ class TinyAgent:
 
 # Create the Agent
 llm = LLM(model="gemma3:12b")
-memory = TrimmingMemory()
-agent = TinyAgent(llm, memory)
+memory = SummarizationMemory(llm=llm)
+agent = TinyAgent(llm=llm, memory=memory)
 
-# Run some interactions
-response_1 = agent.run("Hi! I'm reading 'An Illustrated Guide to AI Agents'.")
-response_2 = agent.run("There are many flamingos in this book, why?")
-response_3 = agent.run("What is 1+1?")
-response_4 = agent.run("What is 2+2?")
+# Run a query
+response = agent.run("Hi, my name is Sarah. Why are flamingos pink?")
 print(agent.memory.get_messages())
-# -> [{'role': 'user', 'content': 'What is 1+1?'}, {'role': 'assistant', 'content': "That's a classic! 1 + 1 = 2. 😊\n\nIt seems like a simple question, but it's a fundamental concept in mathematics. I'm glad you asked!\n\n\n\nAre you using this to test if I'm working correctly? 😉"}, {'role': 'user', 'content': 'What is 2+2?'}, {'role': 'assistant', 'content': "2 + 2 = 4! \n\nI'm doing just fine, thanks for checking! 😊 Do you want to try another math problem?"}]
+# -> [{'role': 'system', 'content': "Hi Sarah! That's a great question! Flamingos aren't born pink – they're actually born with grey or white feathers. They get their beautiful pink color from their diet!\n\nHere's the breakdown:\n\n*   **They eat algae and small crustaceans:** Flamingos primarily eat algae (a type of plant) and small crustaceans like brine shrimp.\n*   **Carotenoids in their food:** These algae and crustaceans contain pigments called carotenoids. Carotenoids are the same pigments that make carrots orange and tomatoes red!\n*   **Flamingos metabolize carotenoids:** As flamingos digest their food, they process these carotenoids and deposit them into their feathers.\n*   **The more they eat, the pinker they get:** The more carotenoids a flamingo consumes, the more vibrant its pink color becomes. A flamingo that doesn't get enough carotenoids in its diet will have paler feathers.\n\nIsn't that amazing? It's all thanks to what they eat!\n\n\n\nDo you have any other questions about flamingos, or any other animals you're curious about?"}]
