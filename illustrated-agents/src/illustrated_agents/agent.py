@@ -2,16 +2,10 @@ from illustrated_agents.llm import LLM
 from illustrated_agents.trajectory import Trajectory
 from illustrated_agents.memory import Memory
 
-# Re-initialize the LLM with the updated class
-llm = LLM(model="gemma4:e4b")
-
-memory = Memory()
-
-
 class TinyAgent:
     """最小限のモジュール式の教育エージェント フレームワーク"""
 
-    def __init__(self) -> None:
+    def __init__(self, llm: LLM, memory: Memory) -> None:
         self.llm = llm
         self.memory = memory
         self.tools = None  # Chapter 5: Add Tools
@@ -38,26 +32,29 @@ class TinyAgent:
         return f"Executed action: {action}"
 
 
-# 実行
-agent_with_memory = TinyAgent()
+llm = LLM(model="gemma3:12b")
+memory = Memory()
+agent_with_memory = TinyAgent(llm, memory)
 # First query
 first_response = agent_with_memory.run("Hi! We are Maarten and Jay, authors of 'An Illustrated Guide to AI Agents'.")
 print(first_response)
 # ->
-# Hi Maarten and Jay! It's a pleasure to "meet" the authors of *An Illustrated Guide to AI Agents*.
+"""
+Hello Maarten and Jay! It's a pleasure to "meet" you, the authors of 'An Illustrated Guide to AI Agents.'
 
-# That sounds like a fascinating and very timely book! AI Agents are such a hot topic right now.
+That sounds like a fascinating and very timely book! AI Agents are such a hot topic right now.
 
-# **I'd love to know more! To help me respond better, could you tell me a bit about what you'd like to discuss? For example, are you looking to:**
+**How can I help you today?** Are you looking for:
 
-# 1. **Share insights** about a specific concept in the book?
-# 2. **Get feedback** on a topic you're researching?
-# 3. **Brainstorm marketing ideas** or talking points?
-# 4. **Ask me questions** about AI Agents, LLMs, or related technologies?
+* **Promotional ideas** for the book?
+* **Technical explanations** that might help you structure future content?
+* **Feedback** on concepts related to AI agents?
+* Just a friendly chat about the future of autonomous systems?
 
-# What's on your mind today? 😊
+Let me know what's on your mind! I'm ready to discuss AI agents! 🤖
+"""
 
 # Second query
 second_response = agent_with_memory.run("Hi! What are our names?")
 print(second_response)
-# -> Your names are Maarten and Jay.
+# -> You mentioned your names are **Maarten and Jay**.
