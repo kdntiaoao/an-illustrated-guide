@@ -20,3 +20,20 @@ class Memory:
     def get_messages(self) -> list[dict]:
         """Get all messages."""
         return self.messages
+
+
+class TrimmingMemory(Memory):
+    """ユーザー / アシスタント の最後の 2 つのターンのみを保持するメモリ"""
+
+    def add(self, role: str, content: str, **kwargs) -> None:
+        # 最初に親クラスを使用して新しいメッセージを追加する (Memory)
+        super().add(role, content, **kwargs)
+
+        # 次に、システムメッセージと最新の 2 ターンを保持する (4 messages)
+        system = [
+            message for message in self.messages if message["role"] == "system"
+        ]
+        turns = [
+            message for message in self.messages if message["role"] != "system"
+        ]
+        self.messages = system + turns[-4:]

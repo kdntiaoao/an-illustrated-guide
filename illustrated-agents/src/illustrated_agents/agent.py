@@ -1,6 +1,6 @@
 from illustrated_agents.llm import LLM
 from illustrated_agents.trajectory import Trajectory
-from illustrated_agents.memory import Memory
+from illustrated_agents.memory import Memory, TrimmingMemory
 
 class TinyAgent:
     """最小限のモジュール式の教育エージェント フレームワーク"""
@@ -31,30 +31,15 @@ class TinyAgent:
         # Placeholder - 後の章で実装されます
         return f"Executed action: {action}"
 
-
+# Create the Agent
 llm = LLM(model="gemma3:12b")
-memory = Memory()
-agent_with_memory = TinyAgent(llm, memory)
-# First query
-first_response = agent_with_memory.run("Hi! We are Maarten and Jay, authors of 'An Illustrated Guide to AI Agents'.")
-print(first_response)
-# ->
-"""
-Hello Maarten and Jay! It's a pleasure to "meet" you, the authors of 'An Illustrated Guide to AI Agents.'
+memory = TrimmingMemory()
+agent = TinyAgent(llm, memory)
 
-That sounds like a fascinating and very timely book! AI Agents are such a hot topic right now.
-
-**How can I help you today?** Are you looking for:
-
-* **Promotional ideas** for the book?
-* **Technical explanations** that might help you structure future content?
-* **Feedback** on concepts related to AI agents?
-* Just a friendly chat about the future of autonomous systems?
-
-Let me know what's on your mind! I'm ready to discuss AI agents! 🤖
-"""
-
-# Second query
-second_response = agent_with_memory.run("Hi! What are our names?")
-print(second_response)
-# -> You mentioned your names are **Maarten and Jay**.
+# Run some interactions
+response_1 = agent.run("Hi! I'm reading 'An Illustrated Guide to AI Agents'.")
+response_2 = agent.run("There are many flamingos in this book, why?")
+response_3 = agent.run("What is 1+1?")
+response_4 = agent.run("What is 2+2?")
+print(agent.memory.get_messages())
+# -> [{'role': 'user', 'content': 'What is 1+1?'}, {'role': 'assistant', 'content': "That's a classic! 1 + 1 = 2. 😊\n\nIt seems like a simple question, but it's a fundamental concept in mathematics. I'm glad you asked!\n\n\n\nAre you using this to test if I'm working correctly? 😉"}, {'role': 'user', 'content': 'What is 2+2?'}, {'role': 'assistant', 'content': "2 + 2 = 4! \n\nI'm doing just fine, thanks for checking! 😊 Do you want to try another math problem?"}]
