@@ -24,8 +24,7 @@ def verify(answer):
         fn = namespace["roman_to_int"]
 
         # テストケースで関数を評価する
-        score = sum(fn(inp) == expected for inp, expected in test_cases) / len
-        (test_cases)
+        score = sum(fn(inp) == expected for inp, expected in test_cases) / len(test_cases)
         return score
     except Exception:
         # コードが有効な Python でない場合は 0 を返す
@@ -55,6 +54,9 @@ Give only the function definition, no explanation or markdown formatting."""
 
     # Generate response
     response = llm.generate([{"role": "user", "content": query}])
+    print("Response generated: ")
+    print(response.content)
+    print("--------------------------------")
 
     # Verify the response and compute a score
     score = verify(response.content)
