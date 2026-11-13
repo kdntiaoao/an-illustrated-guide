@@ -74,3 +74,29 @@ class LLM:
             tool_call=tool_call,
             metadata=metadata,
         )
+
+class EmbeddingModel:
+    """Generate embeddings."""
+
+    def __init__(
+        self,
+        model: str,
+        base_url: str = "http://localhost:11434/v1",
+    ):
+        """指定されたモデルで埋め込みモデルを初期化"""
+        self.model = model
+        self.base_url = base_url
+
+    def embed(self, text: str) -> list[float]:
+        """テキストを数値ベクトルに変換する"""
+        # OpenAI 互換の /embeddings エンドポイントへの POST
+        request = urllib.request.Request(
+            f"{self.base_url}/embeddings",
+            data=json.dumps({"model": self.model, "input": text}).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(request) as resp:
+            response = json.loads(resp.read())
+
+        # embedding を抽出して返す
+        return response["data"][0]["embedding"]
