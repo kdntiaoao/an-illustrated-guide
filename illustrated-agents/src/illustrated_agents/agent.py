@@ -1,6 +1,6 @@
-from illustrated_agents.llm import LLM
+from illustrated_agents.llm import LLM, EmbeddingModel
 from illustrated_agents.trajectory import Trajectory
-from illustrated_agents.memory import Memory, SummarizationMemory
+from illustrated_agents.memory import Memory, RAGMemory
 
 class TinyAgent:
     """最小限のモジュール式の教育エージェント フレームワーク"""
@@ -31,12 +31,26 @@ class TinyAgent:
         # Placeholder - 後の章で実装されます
         return f"Executed action: {action}"
 
+# RAGMemory with external documents
+documents = [
+    "Sarah works as a marine biologist studying coral reefs.",
+    "Sarah lives in Lisbon, Portugal.",
+    "Sarah's favorite hobby is rock climbing.",
+    "Sarah favorite animal is flamingos.",
+    "Sarah speaks fluent Spanish and Portuguese.",
+    "Ilse is a software engineer at a renewable energy startup.",
+    "Ilse lives in Amsterdam, the Netherlands.",
+    "Ilse plays the cello in a local string quartet.",
+    "Ilse's favorite author is Brandon Sanderson.",
+    "Ilse's favorite animal is dolphins.",
+]
+
 # Create the Agent
 llm = LLM(model="gemma3:12b")
-memory = SummarizationMemory(llm=llm)
+embedding_model = EmbeddingModel(model="embeddinggemma")
+memory = RAGMemory(documents=documents, embedding_model=embedding_model)
 agent = TinyAgent(llm=llm, memory=memory)
 
 # Run a query
-response = agent.run("Hi, my name is Sarah. Why are flamingos pink?")
-print(agent.memory.get_messages())
-# -> [{'role': 'system', 'content': "Hi Sarah! That's a great question! Flamingos aren't born pink – they're actually born with grey or white feathers. They get their beautiful pink color from their diet!\n\nHere's the breakdown:\n\n*   **They eat algae and small crustaceans:** Flamingos primarily eat algae (a type of plant) and small crustaceans like brine shrimp.\n*   **Carotenoids in their food:** These algae and crustaceans contain pigments called carotenoids. Carotenoids are the same pigments that make carrots orange and tomatoes red!\n*   **Flamingos metabolize carotenoids:** As flamingos digest their food, they process these carotenoids and deposit them into their feathers.\n*   **The more they eat, the pinker they get:** The more carotenoids a flamingo consumes, the more vibrant its pink color becomes. A flamingo that doesn't get enough carotenoids in its diet will have paler feathers.\n\nIsn't that amazing? It's all thanks to what they eat!\n\n\n\nDo you have any other questions about flamingos, or any other animals you're curious about?"}]
+response = agent.run("What is Sarah's favorite animal?")
+print(response) # -> Sarah's favorite animal is flamingos.
