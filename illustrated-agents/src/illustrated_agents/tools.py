@@ -19,6 +19,28 @@ class Tools:
         self.registry[name] = {"function": func, "description": description}
 
     @property
+    def descriptions(self) -> str:
+        """登録されているすべてのツールの説明を取得する"""
+        return "\n".join(
+            f"`{tool}`: {self.registry[tool]['description']}"
+            for tool in self.registry
+        )
+
+    @property
+    def prompt(self) -> str:
+        return f"""
+# Tools
+
+If needed, you can only use the following tools to assist you
+in completing tasks:
+
+{self.descriptions}
+
+To use a tool, respond with JSON:
+{{"tool": "name", "kwargs": {{"param": "value"}}}}
+"""
+
+    @property
     def schemas(self) -> None:
-        """Used only for native tool-calling."""
+        """ネイティブツールの呼び出しのみに使用する"""
         return None
