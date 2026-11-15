@@ -81,6 +81,19 @@ To use a tool, respond with JSON:
 
         return f"Tool '{name}' not found."
 
+    def observation(self, result: str) -> tuple[str, str]:
+        """ユーザーとしての観察を返す"""
+        return "user", f"OBSERVATION: {result}"
+
+    def is_done(self, response: Response) -> bool:
+        """`TinyAgent` の停止メカニズム"""
+        if not response.tool_call:
+            return True
+        if response.tool_call["tool"] == "final_answer":
+            response.content = response.tool_call.get("kwargs", "")
+            return True
+        return False
+
     @property
     def schemas(self) -> None:
         """ネイティブツールの呼び出しのみに使用する"""
