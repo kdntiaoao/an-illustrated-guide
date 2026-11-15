@@ -1,17 +1,31 @@
-from illustrated_agents.llm import LLM, EmbeddingModel
+from illustrated_agents.llm import LLM, Response
 from illustrated_agents.trajectory import Trajectory
-from illustrated_agents.memory import Memory, RAGMemory
+from illustrated_agents.memory import Memory
+from illustrated_agents.tools import Tools
 
 class TinyAgent:
-    """最小限のモジュール式の教育エージェント フレームワーク"""
+    """
+    最小限のモジュール式の教育エージェント フレームワーク
 
-    def __init__(self, llm: LLM, memory: Memory) -> None:
+    大文字の単語の意味
+    * THOUGHT：次に何をすべきかに関するLLMの推論
+    * ACTION：LLMのアクションまたはツール呼び出しはJSON形式で構成されている
+    * OBSERVATION：LLMが実行したACTIONの出力
+    * ANSWER：1つ以上のステップを実行した後のLLMの最終回答
+    """
+
+    def __init__(self, llm: LLM, memory: Memory, tools: Tools) -> None:
         self.llm = llm
         self.memory = memory
-        self.tools = None  # Chapter 5: Add Tools
+        self.tools = tools
         self.planner = None  # Chapter 6: Add Planning
 
         self.trajectory = Trajectory()
+
+        # すべてのコンポーネントを含むビルドシステムプロンプト
+        system_prompt = "You are a helpful assistant.\n\n"
+        system_prompt += self.tools.prompt
+        self.memory.add("system", system_prompt)
 
     def run(self, task: str) -> str:
         """タスクに対してエージェントを実行します"""
@@ -21,36 +35,59 @@ class TinyAgent:
 
     def _step(self, task: str) -> str:
         """単一のステップを実行します"""
-        response = self.llm.generate(self.memory.get_messages())
-        self.memory.add("assistant", response.content)
-        self.trajectory.add(response)
-        return response.content
+        # THOUGHT: 応答を生成してメモリに追加する
+        response = self.llm.generate(
+            self.memory.get_messages(), tools=self.tools.schemas
+        )
+        self.memory.add(
+            "assistant", response.content, tool_call=response.tool_call
+        )
 
-    def _execute_action(self, action: str) -> str:
+        # Tool parsing
+        response = self.tools.parse(response)
+
+        # ANSWER: 停止メカニズム
+        if self.tools.is_done(response):
+            self.trajectory.add(response)
+            return response.content
+
+        return self._execute_action(response)
+
+    def _execute_action(self, response: Response) -> str:
         """ツールアクションを実行します"""
-        # Placeholder - 後の章で実装されます
-        return f"Executed action: {action}"
+        # ACTION: ツールを実行する
+        result = self.tools.execute(response)
 
-# RAGMemory with external documents
-documents = [
-    "Sarah works as a marine biologist studying coral reefs.",
-    "Sarah lives in Lisbon, Portugal.",
-    "Sarah's favorite hobby is rock climbing.",
-    "Sarah favorite animal is flamingos.",
-    "Sarah speaks fluent Spanish and Portuguese.",
-    "Ilse is a software engineer at a renewable energy startup.",
-    "Ilse lives in Amsterdam, the Netherlands.",
-    "Ilse plays the cello in a local string quartet.",
-    "Ilse's favorite author is Brandon Sanderson.",
-    "Ilse's favorite animal is dolphins.",
-]
+        # OBSERVATION: ツールの結果をメモリに追加して表示する
+        role, observation = self.tools.observation(result)
+        self.memory.add(role, observation)
+        self.trajectory.add(response, observation)
 
-# Create the Agent
+        return observation
+
+# Gemma 3 12B (ネイティブな思考やツールの呼び出しなし)
 llm = LLM(model="gemma3:12b")
-embedding_model = EmbeddingModel(model="embeddinggemma")
-memory = RAGMemory(documents=documents, embedding_model=embedding_model)
-agent = TinyAgent(llm=llm, memory=memory)
 
-# Run a query
-response = agent.run("What is Sarah's favorite animal?")
-print(response) # -> Sarah's favorite animal is flamingos.
+
+# Register tool
+tools = Tools()
+
+def multiply(a: str, b: str) -> float:
+    return float(a) * float(b)
+
+tools.add_tool(
+    name="multiply",
+    func=multiply,
+    description="Multiplies two numbers: multiply(a: str, b: str)"
+)
+
+# Memory
+memory = Memory()
+
+# Initialize Agent
+agent = TinyAgent(llm=llm, memory=memory, tools=tools)
+
+# ツールの使用が必要なクエリ
+print(agent.run("What is 5.1 times 7.3?")) # -> OBSERVATION: 37.23
+
+print(agent.memory.get_messages()) # -> [{'role': 'system', 'content': 'You are a helpful assistant.\n\n\n# Tools\n\nIf needed, you can only use the following tools to assist you\nin completing tasks:\n\n`multiply`: Multiplies two numbers: multiply(a: str, b: str)\n\nTo use a tool, respond with JSON:\n{"tool": "name", "kwargs": {"param": "value"}}\n'}, {'role': 'user', 'content': 'What is 5.1 times 7.3?'}, {'role': 'assistant', 'content': '{"tool": "multiply", "kwargs": {"a": "5.1", "b": "7.3"}}'}, {'role': 'user', 'content': 'OBSERVATION: 37.23'}]
