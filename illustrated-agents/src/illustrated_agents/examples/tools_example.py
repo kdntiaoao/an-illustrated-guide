@@ -1,4 +1,5 @@
 from illustrated_agents.tools import Tools
+from illustrated_agents.llm import Response
 
 def multiply(a: str, b: str) -> float:
     return float(a) * float(b)
@@ -6,22 +7,17 @@ def multiply(a: str, b: str) -> float:
 # Register tool
 tools = Tools()
 tools.add_tool(
-    name="multiply",
-    func=multiply,
-    description="Multiplies two numbers: multiply(a: str, b: str)"
+    "multiply", multiply, "Multiplies two numbers: multiply(a: str, b: str)"
 )
 
-# Show prompt
-print(tools.prompt)
-# ->
-"""
-# Tools
+# Fake LLM response
+response = Response(
+    content='{"tool": "multiply", "kwargs": {"a": "3.1", "b": "6.5"} }'
+)
 
-If needed, you can only use the following tools to assist you
-in completing tasks:
+# Parse into a tool call
+response = tools.parse(response)
 
-`multiply`: Multiplies two numbers: multiply(a: str, b: str)
-
-To use a tool, respond with JSON:
-{"tool": "name", "kwargs": {"param": "value"}}
-"""
+# Execute the tool
+print(tools.execute(response))
+# -> 20.150000000000002

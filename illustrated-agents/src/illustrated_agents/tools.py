@@ -1,4 +1,6 @@
-from typing import Callable
+import json
+from typing import Any, Callable
+from illustrated_agents.llm import Response
 
 class Tools:
     """Tool registry for the Agent."""
@@ -39,6 +41,45 @@ in completing tasks:
 To use a tool, respond with JSON:
 {{"tool": "name", "kwargs": {{"param": "value"}}}}
 """
+
+    def parse(self, response: Response) -> Response:
+        """テキストから JSON ツール呼び出しを解析する"""
+        text = response.content
+
+        if '"tool":' in text or '"tool:"' in text:
+            start, end = text.find("{"), text.rfind("}") + 1
+            tool_call = json.loads(text[start:end])
+
+            # 解析されたツール呼び出しを応答に追加する
+            return Response(
+                content=response.content,
+                reasoning=response.reasoning,
+                tool_call=tool_call,
+            )
+
+        return response
+
+    def execute(self, response: Response) -> Any:
+        """Run a registered tool.
+
+        Arguments:
+            tool_call: 「tool」と「kwargs」を含む解析されたツール呼び出し辞書
+        """
+        tool_call = response.tool_call
+        name, kwargs = tool_call["tool"], tool_call.get("kwargs", {})
+
+        # Human-in-the-loop: 危険なツールを実行する前に尋ねる
+        if name in self.registry and name in self.requires_approval:
+            response = input(f"Allow {name}? [y/N] ").strip().lower()
+            if response not in ("y", "yes"):
+                return f"Tool '{name}' was denied by the user."
+
+        # 登録されたツールを操作する
+        if name in self.registry:
+            tool_func = self.registry[name]["function"]
+            return tool_func(**kwargs)
+
+        return f"Tool '{name}' not found."
 
     @property
     def schemas(self) -> None:
