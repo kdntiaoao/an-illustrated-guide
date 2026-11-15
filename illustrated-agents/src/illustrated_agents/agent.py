@@ -1,7 +1,8 @@
 from illustrated_agents.llm import LLM, Response
 from illustrated_agents.trajectory import Trajectory
 from illustrated_agents.memory import Memory
-from illustrated_agents.tools import Tools
+from illustrated_agents.tools import Tools, NativeTools
+
 
 class TinyAgent:
     """
@@ -39,9 +40,7 @@ class TinyAgent:
         response = self.llm.generate(
             self.memory.get_messages(), tools=self.tools.schemas
         )
-        self.memory.add(
-            "assistant", response.content, tool_call=response.tool_call
-        )
+        self.memory.add("assistant", response.content, tool_call=response.tool_call)
 
         # Tool parsing
         response = self.tools.parse(response)
@@ -65,20 +64,22 @@ class TinyAgent:
 
         return observation
 
-# Gemma 3 12B (ネイティブな思考やツールの呼び出しなし)
-llm = LLM(model="gemma3:12b")
+
+llm = LLM(model="gemma4:e4b")
 
 
 # Register tool
-tools = Tools()
+tools = NativeTools()
+
 
 def multiply(a: str, b: str) -> float:
     return float(a) * float(b)
 
+
 tools.add_tool(
     name="multiply",
     func=multiply,
-    description="Multiplies two numbers: multiply(a: str, b: str)"
+    description="Multiplies two numbers: multiply(a: str, b: str)",
 )
 
 # Memory
@@ -88,6 +89,7 @@ memory = Memory()
 agent = TinyAgent(llm=llm, memory=memory, tools=tools)
 
 # ツールの使用が必要なクエリ
-print(agent.run("What is 5.1 times 7.3?")) # -> OBSERVATION: 37.23
+print(agent.run("What is 5.1 times 7.3?"))  # -> 37.23
 
-print(agent.memory.get_messages()) # -> [{'role': 'system', 'content': 'You are a helpful assistant.\n\n\n# Tools\n\nIf needed, you can only use the following tools to assist you\nin completing tasks:\n\n`multiply`: Multiplies two numbers: multiply(a: str, b: str)\n\nTo use a tool, respond with JSON:\n{"tool": "name", "kwargs": {"param": "value"}}\n'}, {'role': 'user', 'content': 'What is 5.1 times 7.3?'}, {'role': 'assistant', 'content': '{"tool": "multiply", "kwargs": {"a": "5.1", "b": "7.3"}}'}, {'role': 'user', 'content': 'OBSERVATION: 37.23'}]
+print(agent.memory.get_messages())
+# -> [{'role': 'system', 'content': 'You are a helpful assistant.\n\n'}, {'role': 'user', 'content': 'What is 5.1 times 7.3?'}, {'role': 'assistant', 'content': '', 'tool_calls': [{'id': 'call_zfi9cax9', 'index': 0, 'type': 'function', 'function': {'name': 'multiply', 'arguments': '{"a":"5.1","b":"7.3"}'}}]}, {'role': 'tool', 'content': '37.23'}]

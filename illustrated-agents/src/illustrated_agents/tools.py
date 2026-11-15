@@ -1,6 +1,46 @@
 import json
+import inspect
 from typing import Any, Callable
 from illustrated_agents.llm import Response
+
+# Convert specific types to string descriptions
+TYPE_MAP = {
+    str: "string",
+    int: "integer",
+    float: "number",
+    bool: "boolean",
+    list: "array",
+    dict: "object",
+}
+
+
+def tool_to_schema(function: Callable) -> dict:
+    """Convert a Python function to an OpenAI-style tool schema."""
+    signature = inspect.signature(function)
+
+    # Extract meatadata
+    properties, required = {}, []
+    for name, parameter in signature.parameters.items():
+        properties[name] = {"type": TYPE_MAP.get(parameter.annotation, "string")}
+        if parameter.default is inspect.Parameter.empty:
+            required.append(name)
+
+    # Fill schema
+    schema = {
+        "type": "function",
+        "function": {
+            "name": function.__name__,
+            "description": inspect.getdoc(function),
+            "parameters": {
+                "type": "object",
+                "properties": properties,
+                "required": required,
+            },
+        },
+    }
+
+    return schema
+
 
 class Tools:
     """Tool registry for the Agent."""
@@ -24,8 +64,7 @@ class Tools:
     def descriptions(self) -> str:
         """登録されているすべてのツールの説明を取得する"""
         return "\n".join(
-            f"`{tool}`: {self.registry[tool]['description']}"
-            for tool in self.registry
+            f"`{tool}`: {self.registry[tool]['description']}" for tool in self.registry
         )
 
     @property
@@ -98,3 +137,47 @@ To use a tool, respond with JSON:
     def schemas(self) -> None:
         """ネイティブツールの呼び出しのみに使用する"""
         return None
+
+
+class NativeTools(Tools):
+    """ネイティブ関数呼び出しを使用したツールレジストリ"""
+
+    @property
+    def schemas(self) -> list[dict]:
+        """ネイティブ関数呼び出し用のツール関数を返す"""
+        return [tool_to_schema(tool["function"]) for tool in self.registry.values()]
+
+    @property
+    def prompt(self) -> str:
+        """ネイティブツール呼び出しのプロンプトが必要ないため空"""
+        return ""
+
+    def parse(self, response: Response) -> Response:
+        """Parse a tool call."""
+        # ツール呼び出しがない場合はそのままレスポンスを返す
+        if not response.tool_call:
+            return response
+
+        # ツール呼び出しからツール名と引数を抽出する
+        args = response.tool_call["function"]["arguments"]
+        if isinstance(args, str):
+            args = json.loads(args)
+        tool_call = {
+            "tool": response.tool_call["function"]["name"],
+            "kwargs": args,
+        }
+
+        # 解析されたツール呼び出しを応答に追加する
+        return Response(
+            content=response.content,
+            reasoning=response.reasoning,
+            tool_call=tool_call,
+        )
+
+    def observation(self, result: str) -> tuple[str, str]:
+        """ネイティブツールの結果では「ツール」ロールが使用される"""
+        return "tool", str(result)
+
+    def is_done(self, response: Response) -> bool:
+        """ツール呼び出しがない場合は「TinyAgent」が完了したことを意味する"""
+        return not response.tool_call
