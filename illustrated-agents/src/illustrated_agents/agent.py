@@ -1,7 +1,9 @@
 from illustrated_agents.llm import LLM, Response
 from illustrated_agents.trajectory import Trajectory
 from illustrated_agents.memory import Memory
-from illustrated_agents.tools import Tools, NativeTools
+from illustrated_agents.tools import Tools
+from illustrated_agents.toolbox import add, multiply, subtract
+from illustrated_agents.planning import ReAct
 
 
 class TinyAgent:
@@ -15,16 +17,17 @@ class TinyAgent:
     * ANSWER：1つ以上のステップを実行した後のLLMの最終回答
     """
 
-    def __init__(self, llm: LLM, memory: Memory, tools: Tools) -> None:
+    def __init__(self, llm: LLM, memory: Memory, tools: Tools, planner: ReAct) -> None:
         self.llm = llm
         self.memory = memory
         self.tools = tools
-        self.planner = None  # Chapter 6: Add Planning
+        self.planner = planner
 
         self.trajectory = Trajectory()
 
         # すべてのコンポーネントを含むビルドシステムプロンプト
         system_prompt = "You are a helpful assistant.\n\n"
+        system_prompt += self.planner.prompt
         system_prompt += self.tools.prompt
         self.memory.add("system", system_prompt)
 
@@ -32,9 +35,16 @@ class TinyAgent:
         """タスクに対してエージェントを実行します"""
         self.memory.add("user", task)
         self.trajectory.initialize(task)
-        return self._step(task)
 
-    def _step(self, task: str) -> str:
+        # *Autonomy* loop
+        for step in range(self.planner.max_steps):
+            result = self._step()
+            if result is not None:
+                return result
+
+        return "Max steps reached without completion."
+
+    def _step(self) -> str | None:
         """単一のステップを実行します"""
         # THOUGHT: 応答を生成してメモリに追加する
         response = self.llm.generate(
@@ -43,6 +53,7 @@ class TinyAgent:
         self.memory.add("assistant", response.content, tool_call=response.tool_call)
 
         # Tool parsing
+        response = self.planner.parse(response)
         response = self.tools.parse(response)
 
         # ANSWER: 停止メカニズム
@@ -52,7 +63,7 @@ class TinyAgent:
 
         return self._execute_action(response)
 
-    def _execute_action(self, response: Response) -> str:
+    def _execute_action(self, response: Response) -> None:
         """ツールアクションを実行します"""
         # ACTION: ツールを実行する
         result = self.tools.execute(response)
@@ -62,34 +73,67 @@ class TinyAgent:
         self.memory.add(role, observation)
         self.trajectory.add(response, observation)
 
-        return observation
+        return None
 
 
-llm = LLM(model="gemma4:e4b")
+# Gemma 3 12B (no native thinking or tool calling)
+llm = LLM(model="gemma3:12b")
 
-
-# Register tool
-tools = NativeTools()
-
-
-def multiply(a: str, b: str) -> float:
-    return float(a) * float(b)
-
-
-tools.add_tool(
-    name="multiply",
-    func=multiply,
-    description="Multiplies two numbers: multiply(a: str, b: str)",
-)
+# Tools
+tools = Tools()
+tools.add_tool("add", add, "add(a: str, b: str)")
+tools.add_tool("subtract", subtract, "subtract(a: str, b: str)")
+tools.add_tool("multiply", multiply, "multiply(a: str, b: str)")
 
 # Memory
 memory = Memory()
 
-# Initialize Agent
-agent = TinyAgent(llm=llm, memory=memory, tools=tools)
+# ReAct
+react = ReAct(max_steps=10)
 
-# ツールの使用が必要なクエリ
-print(agent.run("What is 5.1 times 7.3?"))  # -> 37.23
+# Create agent
+agent = TinyAgent(llm=llm, tools=tools, memory=memory, planner=react)
 
-print(agent.memory.get_messages())
-# -> [{'role': 'system', 'content': 'You are a helpful assistant.\n\n'}, {'role': 'user', 'content': 'What is 5.1 times 7.3?'}, {'role': 'assistant', 'content': '', 'tool_calls': [{'id': 'call_zfi9cax9', 'index': 0, 'type': 'function', 'function': {'name': 'multiply', 'arguments': '{"a":"5.1","b":"7.3"}'}}]}, {'role': 'tool', 'content': '37.23'}]
+# Multi-step task with reasoning
+print(agent.run("What is (4.6 + 6.685) x 4, and then subtract 3.14 from the result?"))
+# -> 42.0
+
+print(agent.trajectory.runs)
+# ->
+"""
+[
+    {
+        "query": "What is (4.6 + 6.685) x 4, and then subtract 3.14 from the result?",
+        "steps": [
+            Step(
+                thought="I need to first add 4.6 and 6.685, then multiply the result by 4, and finally subtract 3.14 from the final product. I will use the add tool for the first step.",
+                action={"tool": "add", "kwargs": {"a": "4.6", "b": "6.685"}},
+                observation="OBSERVATION: 11.285",
+                answer=None,
+                metadata=None,
+            ),
+            Step(
+                thought="Now that I have the sum of 4.6 and 6.685, which is 11.285, I need to multiply this result by 4. I will use the multiply tool for this.",
+                action={"tool": "multiply", "kwargs": {"a": "11.285", "b": "4"}},
+                observation="OBSERVATION: 45.14",
+                answer=None,
+                metadata=None,
+            ),
+            Step(
+                thought="I have now multiplied 11.285 by 4, which gave me 45.14. The final step is to subtract 3.14 from this result. I will use the subtract tool.",
+                action={"tool": "subtract", "kwargs": {"a": "45.14", "b": "3.14"}},
+                observation="OBSERVATION: 42.0",
+                answer=None,
+                metadata=None,
+            ),
+            Step(
+                thought="I have performed all the necessary calculations. The final result is 42.0.",
+                action=None,
+                observation=None,
+                answer="42.0",
+                metadata=None,
+            ),
+        ],
+    }
+]
+"""
