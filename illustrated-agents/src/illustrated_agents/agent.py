@@ -1,9 +1,9 @@
 from illustrated_agents.llm import LLM, Response
 from illustrated_agents.trajectory import Trajectory
 from illustrated_agents.memory import Memory
-from illustrated_agents.tools import Tools
+from illustrated_agents.tools import Tools, NativeTools
 from illustrated_agents.toolbox import add, multiply, subtract
-from illustrated_agents.planning import ReAct
+from illustrated_agents.planning import ReAct, NativeReAct
 
 
 class TinyAgent:
@@ -76,11 +76,11 @@ class TinyAgent:
         return None
 
 
-# Gemma 3 12B (no native thinking or tool calling)
-llm = LLM(model="gemma3:12b")
+# Create the Agent
+llm = LLM(model="gemma4:e4b")
 
-# Tools
-tools = Tools()
+# Register tools
+tools = NativeTools()
 tools.add_tool("add", add, "add(a: str, b: str)")
 tools.add_tool("subtract", subtract, "subtract(a: str, b: str)")
 tools.add_tool("multiply", multiply, "multiply(a: str, b: str)")
@@ -89,14 +89,14 @@ tools.add_tool("multiply", multiply, "multiply(a: str, b: str)")
 memory = Memory()
 
 # ReAct
-react = ReAct(max_steps=10)
+react = NativeReAct(max_steps=10)
 
 # Create agent
 agent = TinyAgent(llm=llm, tools=tools, memory=memory, planner=react)
 
 # Multi-step task with reasoning
 print(agent.run("What is (4.6 + 6.685) x 4, and then subtract 3.14 from the result?"))
-# -> 42.0
+# -> The result is 42.0.
 
 print(agent.trajectory.runs)
 # ->
@@ -106,34 +106,56 @@ print(agent.trajectory.runs)
         "query": "What is (4.6 + 6.685) x 4, and then subtract 3.14 from the result?",
         "steps": [
             Step(
-                thought="I need to first add 4.6 and 6.685, then multiply the result by 4, and finally subtract 3.14 from the final product. I will use the add tool for the first step.",
+                thought="",
                 action={"tool": "add", "kwargs": {"a": "4.6", "b": "6.685"}},
-                observation="OBSERVATION: 11.285",
+                observation="11.285",
                 answer=None,
                 metadata=None,
             ),
             Step(
-                thought="Now that I have the sum of 4.6 and 6.685, which is 11.285, I need to multiply this result by 4. I will use the multiply tool for this.",
+                thought="",
                 action={"tool": "multiply", "kwargs": {"a": "11.285", "b": "4"}},
-                observation="OBSERVATION: 45.14",
+                observation="45.14",
                 answer=None,
                 metadata=None,
             ),
             Step(
-                thought="I have now multiplied 11.285 by 4, which gave me 45.14. The final step is to subtract 3.14 from this result. I will use the subtract tool.",
+                thought="",
                 action={"tool": "subtract", "kwargs": {"a": "45.14", "b": "3.14"}},
-                observation="OBSERVATION: 42.0",
+                observation="42.0",
                 answer=None,
                 metadata=None,
             ),
             Step(
-                thought="I have performed all the necessary calculations. The final result is 42.0.",
+                thought="",
                 action=None,
                 observation=None,
-                answer="42.0",
-                metadata=None,
+                answer="The result is 42.0.",
+                metadata={
+                    "model": "gemma4:e4b",
+                    "prompt_tokens": 323,
+                    "completion_tokens": 9,
+                },
             ),
         ],
     }
 ]
+"""
+
+for index, step in enumerate(agent.trajectory.runs[0]["steps"]):
+    print(f"-- Step {index+1} ---")
+    if step.action:
+        print(f"Tool: {step.action}")
+    else:
+        print(f"Answer: {step.answer}")
+# ->
+"""
+-- Step 1 ---
+Tool: {'tool': 'add', 'kwargs': {'a': '4.6', 'b': '6.685'}}
+-- Step 2 ---
+Tool: {'tool': 'multiply', 'kwargs': {'a': '11.285', 'b': '4'}}
+-- Step 3 ---
+Tool: {'tool': 'subtract', 'kwargs': {'a': '45.14', 'b': '3.14'}}
+-- Step 4 ---
+Answer: The result is 42.0.
 """
