@@ -1,5 +1,6 @@
 import re
 import numpy as np
+from math import comb
 from dataclasses import dataclass
 from typing import Callable
 from illustrated_agents.llm import LLM
@@ -290,3 +291,20 @@ print(f"pass@1:  {pass_1:.4f}")
 pass_10 = pass_at_k(n_samples, n_correct_samples, k=10)
 print(f"pass@10: {pass_10:.4f}")
 # -> pass@10: 0.0000
+
+
+# ---------------------------------------------------------
+# pass^k
+# ---------------------------------------------------------
+def pass_hat_k(n_samples, n_correct_samples, k):
+    """Probability that all k randomly drawn samples are correct."""
+    if n_correct_samples < k:
+        return 0.0
+    return comb(n_correct_samples, k) / comb(n_samples, k)
+
+
+pass_1 = pass_hat_k(n_samples, n_correct_samples, k=1)
+print(f"pass@1:  {pass_1:.4f}")
+
+pass_10 = pass_hat_k(n_samples, n_correct_samples, k=10)
+print(f"pass@10: {pass_10:.4f}")
