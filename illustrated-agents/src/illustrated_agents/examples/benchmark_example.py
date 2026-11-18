@@ -201,18 +201,9 @@ Reply with only a single number.
 mmlu_pro = Benchmark(
     name="MMLU Pro",
     examples=[
-        {
-            "task": "Which body cavity contains the pituitary gland?",
-            "expected": "the cranial cavity",
-        },
-        {
-            "task": "What is the approximate mean cranial capacity of Homo erectus?",
-            "expected": "just under 1000 cc",
-        },
-        {
-            "task": "According to Moore's 'ideal utilitarianism,' the right action is the one that brings about the greatest amount of what?",
-            "expected": "good",
-        },
+        {"task": "下垂体はどの体腔にありますか？", "expected": "頭蓋腔"},
+        {"task": "ホモ・エレクトスの平均頭蓋容量は？", "expected": "1000cc弱"},
+        {"task": "ムーアの理想功利主義で正しい行為とは？", "expected": "善"},
     ],
     scorer=judge_scorer,
 )
@@ -224,18 +215,18 @@ print(result)
 """
 {
     "name": "MMLU Pro",
-    "pass_rate": 0.7833333333333333,
+    "pass_rate": 0.9333333333333332,
     "results": [
         {
-            "prediction": "The pituitary gland is located in the **sella turcica** of the skull.\n\nWhile the skull itself is part of the **dural venous sinus** and the surrounding structures are within the **cranial cavity**, the pituitary gland is considered to be part of the **head/neck region** and is closely associated with the central nervous system.\n\nFor a more precise anatomical answer:\n\n* **It is technically within the anatomical space of the skull base.**\n* **It is housed by the sella turcica, which is a specific bony feature of the sphenoid bone.**\n\nTherefore, you are looking at the gland nestled within a specific bony depression in the skull, which is functionally part of the upper torso/head region, but **not** typically classified as residing within the main thoracic or abdominopelvic cavities.",
-            "passed": 0.4,
+            "prediction": "下垂体（pituitary gland）は、一般的な意味での「体腔」（胸腔、腹腔など）に入っているという分類はしません。\n\n**最も正確に言うと、下垂体は「頭蓋骨（ずがいこつ）の中、脳の付け根（脳底）の部分」にあります。**\n\n### 詳しい説明\n\n1. **体腔（Body Cavity）との関係**\n   「体腔」とは、臓器を保護するために身体内に形成されている空間（例：肋骨の中の胸腔、腹部の腹腔など）を指します。下垂体は、体外の腔に存在するのではなく、**頭の中の非常に限られた空間**に位置しています。\n\n2. **解剖学的な位置**\n   下垂体は、**蝶形骨（ちょうけいこつ）という頭蓋骨の一部にある「鞍（くら）」と呼ばれるくぼみ（sella turcica）**に収まっています。\n\n3. **機能的な関係**\n   下垂体は、視床下部（シスラヘル）という脳の一部と非常に密接に機能的なつながり（下垂体-視床下部系）を持っている、特殊な内分泌腺です。\n\n**【まとめ】**\n* **伝統的な体腔分類**では当てはまりません。\n* **最も正確な位置**は、**頭蓋骨の脳の付け根（鞍）**です。",
+            "passed": 0.9,
         },
         {
-            "prediction": 'The approximate mean cranial capacity of *Homo erectus* is highly debated, and the number can vary significantly depending on the specific geographical population, the time period, and the study being conducted.\n\nHowever, based on the general fossil record, a commonly cited approximate mean range is between **800 cubic centimeters (cc) and 1,100 cubic centimeters (cc).**\n\nTo provide more context, here is a detailed breakdown:\n\n---\n\n### 🧠 Key Characteristics and Context\n\n1.  **The Range:** While 800–1,100 cc is the working mean, some specimens have been measured closer to 750 cc, while others have exceeded 1,200 cc. This wide range reflects the diversity within the species.\n2.  **Evolutionary Context:** *H. erectus* represents a significant jump in brain size compared to earlier hominins like *Homo habilis* (whose mean was closer to 500–600 cc).\n3.  **Geographical Variability:** One of the most important points is that brain size was not monolithic. Populations like those in East Asia (e.g., Peking Man) sometimes show smaller capacities, while others (e.g., populations in Africa or parts of Eurasia) can show larger capacities.\n\n### 📊 Comparison Table\n\nTo put this into perspective, here is how the mean cranial capacities of related hominin species generally stack up:\n\n| Hominin Species | Approximate Mean Cranial Capacity | Time Period (General) | Notes |\n| :--- | :--- | :--- | :--- |\n| **Australopithecus** | 400 – 550 cc | Pre-*Homo* | Brain size similar to early apes. |\n| **Homo habilis** | 500 – 650 cc | Early *Homo* | Marked increase from Australopithecines. |\n| **Homo erectus** | **800 – 1,100 cc** | Early *Homo* | Significant expansion; long-distance migration phase. |\n| **Archaic Homo sapiens** | 700 – 1,200 cc | Middle *Homo* | Highly variable; complex behavior emerging. |\n| **Homo sapiens (Modern Humans)** | 1,200 – 1,500+ cc | Late *Homo* | Average is generally higher than *H. erectus*. |\n\n### 💡 Summary Takeaway\n\nWhen citing a number for *H. erectus*, it is best to state the species and the range, rather than a single mean, to accurately reflect the uncertainty in the fossil record.\n\n**Therefore, saying the mean capacity is "around 900–1,000 cc" is a strong and defensible approximation.**',
-            "passed": 0.95,
+            "prediction": "ホモ・エレクトスの頭蓋容量について、**「これだけ」と断言できる単一の平均値は存在しません**。なぜなら、ホモ・エレクトスは非常に広範囲（アフリカ、アジア、ヨーロッパなど）で発見されているため、その地域や時代によって化石の特性が異なるからです。\n\nしかし、一般的な科学的知見に基づくと、平均的な推定値や範囲は以下のように示されています。\n\n### 🔬 一般的な推定値\n\n**約 700 cc 〜 1200 cc** の範囲で推測されています。\n\n*   **補足:**\n    *   早期の推定では700cc前後が主流でしたが、近年、特定の化石群や種を対象とした研究では、これよりも大きい容量を示すものも見られています。\n    *   この容量は、初期のホモ・ハビリス（*Homo habilis*）や後期旧人（ネアンデルタール人など）の平均的な頭蓋容量と比較すると、**「中期的な中間値」**にあたります。\n\n### 🌍 比較のための目安\n\n| 区分 | 頭蓋容量（目安） | 特徴 |\n| :--- | :--- | :--- |\n| **初期のホモ属** (例: ホモ・ハビリス) | 500 〜 700 cc | 脳が小さく、工具の使用が始まった時期。 |\n| **ホモ・エレクトス** | **700 〜 1200 cc** | 非常に広く分布し、火の使用や長距離移動など、高度な活動を開始した種。 |\n| **現生人類** (*Homo sapiens*) | 1200 〜 1600 cc以上 | 現代人の標準的な容量。 |\n\n**要約すると、「700ccから1200cc程度」という広い幅で捉えていただくのが最も正確です。**",
+            "passed": 0.9,
         },
         {
-            "prediction": 'According to Moore\'s "ideal utilitarianism," the right action is the one that brings about the greatest amount of **value**.\n\nMoore aims to provide a rigorous foundation for what constitutes a "good," and he holds that the moral evaluation of an act depends on how much genuine, objective value it produces.\n\n(While classical utilitarianism often focuses on "happiness" or "pleasure," Moore\'s ideal utilitarianism is more concerned with the maximization of the inherent *value* of the outcomes.)',
+            "prediction": "これは非常に高度で哲学的な質問であり、「ムーア（G.E. Moore）」という哲学者をどの側面で捉えるかによって、回答のニュアンスが大きく変わってきます。\n\nなぜなら、G.E.ムーアは、**「功利主義そのもの」を提唱した人物というよりも、むしろ功利主義や倫理学の前提を徹底的に批判した人物**だからです。\n\nしかし、ここでは「ムーアの倫理学が目指す、理想的かつ洗練された行為の決定方法」という視点から、正しい行為を定義します。\n\n---\n\n### 結論：ムーア的な倫理が示す「正しい行為」の定義\n\nムーアの視点から導かれる「正しい行為」とは、**単なる快楽の最大化を目指すのではなく、「真に善いもの（Good）」が発揮される結果をもたらし、それによって全集団の幸福（Well-being）を最大化する行為**です。\n\nこれは「結果主義」（コンシクエンシャリズム）に分類されますが、単なる「快楽最大化」とは一線を画す、より高次の幸福を目指します。\n\n### １. 正しい行為を決定する３つの原則\n\nムーア的アプローチは、以下の要素を総合的に評価し、最も「真の善」を最大化する選択肢を選ぶことを要求します。\n\n#### ① 最大多数の最大幸福（総体的な効用の最大化）\n最も基本的な原則です。行為の結果が、関わるすべての人々にとっての幸福（効用）の合計を最大化する方向に向かっているかを見ます。\n\n*   **評価のポイント:** 特定の一人にとっての苦痛や犠牲が、全体的な利益によって上回っているか。\n*   **例:** 少数派の利益を犠牲にしても、大多数の飢餓を救う行為は、総体的な効用を高めるため、正しいと判断されます。\n\n#### ② 感情的な快楽への依存からの脱却（非自然主義的アプローチ）\nここが、ムーア哲学の最も重要なポイントです。\n単に「気分が良い」「気持ちがいい」という感情的な快楽（hedonism）を基準にするのではなく、**「それが真に良い行為なのか？」という客観的な尺度**を用いて評価します。\n\nムーアは、「『善』とは快楽である」という単純な命題（自然主義的誤謬）が論理的に成り立たないことを鋭く指摘しました。したがって、正しい行為は、単なる快楽中毒的な行動（例：一夜限りの贅沢）ではなく、**倫理的かつ知的な充足感**を伴う行為である必要があります。\n\n#### ③ 真の善（Real Good）の実現\n正しい行為とは、一時的な快楽ではなく、自己や他者が「充実している」「満たされている」と感じられるような、高次の価値（真の善）を体現する行為である必要があります。\n\n*   **例：*単なる快楽* vs *真の善***\n    *   ただ薬を飲んで一時的に痛みを忘れること（一時的快楽）\n    *   苦しい努力をして社会に貢献し、深い自己肯定感と充足感を得ること（真の善）\n\nムーア的な倫理は、後者の方を「正しい行為」として高く評価します。\n\n---\n\n### ２. まとめ：正しい行為の決定プロセス\n\nムーア的倫理において「正しい行為」を判断するプロセスは、単なる感情や直感ではなく、**「効用計算と、善の質的評価」**を組み合わせた複雑なプロセスです。\n\n1.  **行為の特定:** 選択肢A、B、Cを洗い出す。\n2.  **結果の予測:** 各行為がもたらすすべての結果（幸福、苦痛、満足度など）を予測する。\n3.  **効用の計算（量的な評価）:** 予測された結果を総合的に比較し、最大多数の最大幸福に貢献する可能性が高いものを絞り込む。\n4.  **「善の質」の評価（質的な評価）：** 絞り込まれた選択肢が、単なる刺激や快楽ではなく、「真に価値あるもの」「倫理的であるもの」に結びついているか（ムーアの批判をクリアしているか）を吟味する。\n5.  **結論:** 量と質の両方で最も高いスコアを出したものが、「ムーアの理想功利主義」における正しい行為となります。\n\n**【極めて重要な補足】**\nご質問の「ムーアの理想功利主義」という言葉は、哲学用語としては厳密には存在しません。\n\n*   もし「功利主義（Utilitarianism）」全般を指すのであれば、上記の**「総体の幸福最大化」**が答えです。\n*   もし「ムーア（G.E. Moore）」を指すのであれば、彼は功利主義を根本的に批判し、**「『善』は快楽では測れない、もっと複雑で、客観的で、超越的な性質を持つものだ」**という立場を取っているため、「単なる行為のリスト」を出すのではなく、**「倫理的な直感や概念を、純粋な快楽という単純な尺度で還元することを拒否する倫理学」**として理解するのが適切です。",
             "passed": 1.0,
         },
     ],

@@ -142,12 +142,12 @@ print(agent.trajectory.runs)
 ]
 """
 
-for index, step in enumerate(agent.trajectory.runs[0]["steps"]):
-    print(f"-- Step {index+1} ---")
-    if step.action:
-        print(f"Tool: {step.action}")
-    else:
-        print(f"Answer: {step.answer}")
+# for index, step in enumerate(agent.trajectory.runs[0]["steps"]):
+#     print(f"-- Step {index+1} ---")
+#     if step.action:
+#         print(f"Tool: {step.action}")
+#     else:
+#         print(f"Answer: {step.answer}")
 # ->
 """
 -- Step 1 ---
