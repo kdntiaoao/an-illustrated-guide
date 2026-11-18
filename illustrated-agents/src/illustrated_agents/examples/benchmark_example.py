@@ -1,4 +1,5 @@
 import re
+import numpy as np
 from dataclasses import dataclass
 from typing import Callable
 from illustrated_agents.llm import LLM
@@ -70,7 +71,9 @@ def create_agent():
     )
 
 
+# ---------------------------------------------------------
 # Exact match (完全一致)
+# ---------------------------------------------------------
 def exact_match_scorer(prediction: str, example: dict) -> bool:
     """答えが予測と一致する場合は True を返し、そうでない場合は False を返す"""
     match = re.search(r"\b([A-J])\b", prediction.upper())
@@ -127,7 +130,9 @@ Answer with only the letter.""",
 """
 
 
+# ---------------------------------------------------------
 # Programmatic checks (プログラムによる検証)
+# ---------------------------------------------------------
 def programmatic_scorer(prediction: str, example: dict) -> bool:
     """Check a prediction against its related check."""
     return example["check"](prediction)
@@ -178,8 +183,11 @@ ifeval = Benchmark(
 }
 """
 
+
+# ---------------------------------------------------------
 # LLM-as-a-judge (審査員としてのLLM)
-judge = LLM(model="qwen3.5:9b", think=True)
+# ---------------------------------------------------------
+judge = LLM(model="qwen3.5:9b")
 
 
 def judge_scorer(prediction: str, example: dict) -> bool:
@@ -209,8 +217,8 @@ mmlu_pro = Benchmark(
 )
 
 # Run evaluation
-result = Evaluator(create_agent).run(mmlu_pro)
-print(result)
+# result = Evaluator(create_agent).run(mmlu_pro)
+# print(result)
 # ->
 """
 {
@@ -232,3 +240,53 @@ print(result)
     ],
 }
 """
+
+
+# ---------------------------------------------------------
+# pass@k
+# ---------------------------------------------------------
+def pass_at_k(n_samples, n_correct_samples, k):
+    """
+    :param n_samples: total number of samples
+    :param n_correct_samples: number of correct samples
+    :param k: k in pass@k
+    """
+    if n_samples - n_correct_samples < k:
+        return 1.0
+    return 1.0 - np.prod(
+        1.0 - k / np.arange(n_samples - n_correct_samples + 1, n_samples + 1)
+    )
+
+
+n_samples = 10
+n_correct_samples = 0
+task_example = {"task": "ホモ・エレクトスの平均頭蓋容量は？", "expected": "1000cc弱"}
+
+for i in range(n_samples):
+    agent = create_agent()  # 毎回新しいエージェントを作る
+    prediction = agent.run(task_example["task"]) or ""
+
+    # スコアラー（LLM-as-a-judgeなど）で正解判定
+    score = judge_scorer(prediction, task_example)
+
+    if score >= 1.0:  # 完璧に正解した場合
+        n_correct_samples += 1
+
+    # --- 実行結果の確認用 print 追加 ---
+    print(f"--- [試行 {i + 1} / {n_samples}] ---")
+    print(f"  問題: {task_example['task']}")
+    print(f"  期待値: {task_example['expected']}")
+    print(f"  エージェントの答え: {prediction}")
+    print(f"  評価スコア: {score}")
+
+print("---")
+print(f"Success count: {n_correct_samples}/{n_samples}")
+# -> Success count: 0/10
+
+pass_1 = pass_at_k(n_samples, n_correct_samples, k=1)
+print(f"pass@1:  {pass_1:.4f}")
+# -> pass@1:  0.0000
+
+pass_10 = pass_at_k(n_samples, n_correct_samples, k=10)
+print(f"pass@10: {pass_10:.4f}")
+# -> pass@10: 0.0000

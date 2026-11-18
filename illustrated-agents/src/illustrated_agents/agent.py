@@ -95,10 +95,10 @@ react = NativeReAct(max_steps=10)
 agent = TinyAgent(llm=llm, tools=tools, memory=memory, planner=react)
 
 # Multi-step task with reasoning
-print(agent.run("What is (4.6 + 6.685) x 4, and then subtract 3.14 from the result?"))
+# print(agent.run("What is (4.6 + 6.685) x 4, and then subtract 3.14 from the result?"))
 # -> The result is 42.0.
 
-print(agent.trajectory.runs)
+# print(agent.trajectory.runs)
 # ->
 """
 [
