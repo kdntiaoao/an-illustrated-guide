@@ -70,7 +70,7 @@ def create_agent():
     )
 
 
-# 完全一致
+# Exact match (完全一致)
 def exact_match_scorer(prediction: str, example: dict) -> bool:
     """答えが予測と一致する場合は True を返し、そうでない場合は False を返す"""
     match = re.search(r"\b([A-J])\b", prediction.upper())
@@ -127,7 +127,7 @@ Answer with only the letter.""",
 """
 
 
-# プログラムによる検証
+# Programmatic checks (プログラムによる検証)
 def programmatic_scorer(prediction: str, example: dict) -> bool:
     """Check a prediction against its related check."""
     return example["check"](prediction)
@@ -154,8 +154,8 @@ ifeval = Benchmark(
 )
 
 # Run evaluation
-result = Evaluator(create_agent).run(ifeval)
-print(result)
+# result = Evaluator(create_agent).run(ifeval)
+# print(result)
 # ->
 """
 {
@@ -173,6 +173,70 @@ print(result)
         {
             "prediction": "Hark gentle traveler lend thy ear to this scroll\nA journey grand doth take thee far from soul.\nThis pilgrimage to Nippon’s storied land\nA tale of wonder grasped by guiding hand.\n\n***\n\n**THE SIX DAY GRAND ITINERARY**\n\n**DAY ONE TOKYO'S FIERY BREATH**\nThou shalt behold Tokyo a mighty maze\nWhere neon splendor lights all mortal days.\nBright towers rise a sight beyond compare\nGreat crowds doth throng with industry and care.\nAnon ye walk in Ginza's lavish square\nA modern spectacle beyond all prayer.\nEat sushi famed a feast of fish and spice\nAnd witness haste a marvelous device.\n\n**DAY TWO KYOTO'S SILKEN DECREE**\nFrom Tokyo’s frenzy seek ye quieter air\nTo Kyoto’s temples held with ancient prayer.\nHere zen serenity doth claim the day\nWhere ancient mossy wonders hold their sway.\nShinto shrines stand guarded by the stone\nTheir timeless quiet utterly is known.\nYe stroll Through gardens deep a perfect sight\nAnd bathe thy spirit in reflective light.\n\n**DAY THREE ARASHIYAMA AND BAMBOO'S CALL**\nToday the mighty Bamboo forest waits\nA green cathedral guarded by fate.\nYe walk the stalks that reach the heaven's dome\nA whispering forest far away from home.\nFushimi Inari’s great gatekeepers glow\nA thousand gates of vermillion overflow.\nAscend ye paths where fox spirits hold reign\nAnd feel the mystic beauty of the rain.\n\n**DAY FOUR HAKONE MOUNT'S HIGH SOAR**\nTo Fuji’s foothills journey ye afar\nWhere mystic waters shine beneath a star.\nHakone’s views a splendor all sublime\nYe seek the smoke a wonder beyond time.\nYe sail the lake where Hakone’s great mist drifts\nA scene of drama that the soul uplifted.\nBehold the mountain vast a sleeping god\nWhose silent glory doth the traveler laud.\n\n**DAY FIVE NARA'S GRACE A DEER'S SOFT HEAR**\nA day is spent in Nara where the deer\nDo roam like noble kings held ever near.\nThese gentle beasts with wisdom seem to speak\nA holy counsel that the hearts do seek.\nYe see the halls where massive Buddha sleeps\nA solemn watch the ancient temple keeps.\nA perfect peace in Nara ye shall find\nLeaving the modern noise and stress behind.\n\n**DAY SIX FAREWELL TILL ANOTHER TIME**\nThe final sun does set in golden gleam\nA waking vision a magnificent dream.\nWith memories rich and journeys finely done\nThy Nippon quest hath reached its noble run.\nGo hence good friend with heart both full and bright\nAnd carry forth this memory pure as light.",
             "passed": True,
+        },
+    ],
+}
+"""
+
+# LLM-as-a-judge (審査員としてのLLM)
+judge = LLM(model="qwen3.5:9b", think=True)
+
+
+def judge_scorer(prediction: str, example: dict) -> bool:
+    """The LLM-as-a-judge scorer."""
+    prompt = f"""
+Score the response from 0.0 to 1.0.
+
+Expected: {example["expected"]}
+Response: {prediction}
+
+Reply with only a single number.
+"""
+    response = judge.generate([{"role": "user", "content": prompt}])
+    score = float(response.content.strip().split()[0])
+    return score
+
+
+# Three examples adapted from MMLU Pro
+mmlu_pro = Benchmark(
+    name="MMLU Pro",
+    examples=[
+        {
+            "task": "Which body cavity contains the pituitary gland?",
+            "expected": "the cranial cavity",
+        },
+        {
+            "task": "What is the approximate mean cranial capacity of Homo erectus?",
+            "expected": "just under 1000 cc",
+        },
+        {
+            "task": "According to Moore's 'ideal utilitarianism,' the right action is the one that brings about the greatest amount of what?",
+            "expected": "good",
+        },
+    ],
+    scorer=judge_scorer,
+)
+
+# Run evaluation
+result = Evaluator(create_agent).run(mmlu_pro)
+print(result)
+# ->
+"""
+{
+    "name": "MMLU Pro",
+    "pass_rate": 0.7833333333333333,
+    "results": [
+        {
+            "prediction": "The pituitary gland is located in the **sella turcica** of the skull.\n\nWhile the skull itself is part of the **dural venous sinus** and the surrounding structures are within the **cranial cavity**, the pituitary gland is considered to be part of the **head/neck region** and is closely associated with the central nervous system.\n\nFor a more precise anatomical answer:\n\n* **It is technically within the anatomical space of the skull base.**\n* **It is housed by the sella turcica, which is a specific bony feature of the sphenoid bone.**\n\nTherefore, you are looking at the gland nestled within a specific bony depression in the skull, which is functionally part of the upper torso/head region, but **not** typically classified as residing within the main thoracic or abdominopelvic cavities.",
+            "passed": 0.4,
+        },
+        {
+            "prediction": 'The approximate mean cranial capacity of *Homo erectus* is highly debated, and the number can vary significantly depending on the specific geographical population, the time period, and the study being conducted.\n\nHowever, based on the general fossil record, a commonly cited approximate mean range is between **800 cubic centimeters (cc) and 1,100 cubic centimeters (cc).**\n\nTo provide more context, here is a detailed breakdown:\n\n---\n\n### 🧠 Key Characteristics and Context\n\n1.  **The Range:** While 800–1,100 cc is the working mean, some specimens have been measured closer to 750 cc, while others have exceeded 1,200 cc. This wide range reflects the diversity within the species.\n2.  **Evolutionary Context:** *H. erectus* represents a significant jump in brain size compared to earlier hominins like *Homo habilis* (whose mean was closer to 500–600 cc).\n3.  **Geographical Variability:** One of the most important points is that brain size was not monolithic. Populations like those in East Asia (e.g., Peking Man) sometimes show smaller capacities, while others (e.g., populations in Africa or parts of Eurasia) can show larger capacities.\n\n### 📊 Comparison Table\n\nTo put this into perspective, here is how the mean cranial capacities of related hominin species generally stack up:\n\n| Hominin Species | Approximate Mean Cranial Capacity | Time Period (General) | Notes |\n| :--- | :--- | :--- | :--- |\n| **Australopithecus** | 400 – 550 cc | Pre-*Homo* | Brain size similar to early apes. |\n| **Homo habilis** | 500 – 650 cc | Early *Homo* | Marked increase from Australopithecines. |\n| **Homo erectus** | **800 – 1,100 cc** | Early *Homo* | Significant expansion; long-distance migration phase. |\n| **Archaic Homo sapiens** | 700 – 1,200 cc | Middle *Homo* | Highly variable; complex behavior emerging. |\n| **Homo sapiens (Modern Humans)** | 1,200 – 1,500+ cc | Late *Homo* | Average is generally higher than *H. erectus*. |\n\n### 💡 Summary Takeaway\n\nWhen citing a number for *H. erectus*, it is best to state the species and the range, rather than a single mean, to accurately reflect the uncertainty in the fossil record.\n\n**Therefore, saying the mean capacity is "around 900–1,000 cc" is a strong and defensible approximation.**',
+            "passed": 0.95,
+        },
+        {
+            "prediction": 'According to Moore\'s "ideal utilitarianism," the right action is the one that brings about the greatest amount of **value**.\n\nMoore aims to provide a rigorous foundation for what constitutes a "good," and he holds that the moral evaluation of an act depends on how much genuine, objective value it produces.\n\n(While classical utilitarianism often focuses on "happiness" or "pleasure," Moore\'s ideal utilitarianism is more concerned with the maximization of the inherent *value* of the outcomes.)',
+            "passed": 1.0,
         },
     ],
 }
