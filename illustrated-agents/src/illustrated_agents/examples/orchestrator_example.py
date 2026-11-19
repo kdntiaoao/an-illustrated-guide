@@ -64,3 +64,22 @@ orchestrator_agent = TinyAgent(
 
 print(orchestrator_agent.run("If I save €4 per day until 2030, how much will I have?"))
 # -> You will have €6,012.
+
+for index, step in enumerate(orchestrator_agent.trajectory.runs[0]["steps"]):
+    print(f"--- Step {index+1} ---")
+    if step.action:
+        print(f"Tool: {step.action}")
+        print(f"Observation: {step.observation}\n")
+    else:
+        print(f"Answer: {step.answer}\n")
+# ->
+# --- Step 1 ---
+# Tool: {'tool': 'ask_date_agent', 'kwargs': {'question': 'How many days are there from today until the end of 2030?'}}
+# Observation: There are 1503 days from today until the end of 2030.
+
+# --- Step 2 ---
+# Tool: {'tool': 'ask_math_agent', 'kwargs': {'question': '1503 * 4'}}
+# Observation: 6012
+
+# --- Step 3 ---
+# Answer: You will have €6,012.
