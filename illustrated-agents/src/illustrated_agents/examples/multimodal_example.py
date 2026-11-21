@@ -1,3 +1,5 @@
+import base64
+import httpx
 from illustrated_agents.llm import LLM
 from illustrated_agents.memory import MultimodalMemory
 from illustrated_agents.tools import NativeTools
@@ -10,9 +12,15 @@ memory = MultimodalMemory()
 react = NativeReAct()
 agent = TinyAgent(llm=llm, tools=tools, memory=memory, planner=react)
 
-# Run Agent
-print(agent.run("Which animal is on the cover of 'Hands-On Large Language Models'?"))
-# ->
-# I do not have the capability to browse or view the covers of specific books like "Hands-On Large Language Models." Therefore, I cannot tell you which animal is on the cover.
+# Download and encode the image
+image_url = "https://raw.githubusercontent.com/HandsOnLLM/Hands-On-Large-Language-Models/main/images/book_cover.png"
+image_data = base64.b64encode(httpx.get(image_url).content).decode("utf-8")
 
-# If you can provide me with an image of the cover, I would be happy to try and describe it for you!
+# Run Agent with Image Data
+print(
+    agent.run(
+        "Which animal is on the cover of 'Hands-On Large Language Models'?",
+        image_data=image_data,
+    )
+)
+# -> The animal on the cover of 'Hands-On Large Language Models' is a **kangaroo**.
