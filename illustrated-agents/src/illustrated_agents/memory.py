@@ -1,6 +1,7 @@
 from illustrated_agents.llm import LLM
 from illustrated_agents.llm import EmbeddingModel
 
+
 class Memory:
     """会話履歴を保存するシンプルなメモリモジュール"""
 
@@ -33,13 +34,10 @@ class TrimmingMemory(Memory):
         super().add(role, content, **kwargs)
 
         # 次に、システムメッセージと最新の 2 ターンを保持する (4 messages)
-        system = [
-            message for message in self.messages if message["role"] == "system"
-        ]
-        turns = [
-            message for message in self.messages if message["role"] != "system"
-        ]
+        system = [message for message in self.messages if message["role"] == "system"]
+        turns = [message for message in self.messages if message["role"] != "system"]
         self.messages = system + turns[-4:]
+
 
 class SummarizationMemory(Memory):
     """過去を圧縮したメモリは、LLM を介して実行中のサマリーに変わる"""
@@ -74,6 +72,7 @@ Output the updated summary only."""
             response = self.llm.generate([{"role": "user", "content": prompt}])
             self.messages = [{"role": "system", "content": response.content}]
 
+
 class RAGMemory(Memory):
     """RAG による長期記憶"""
 
@@ -97,9 +96,7 @@ Question: {content}"""
         """クエリに最も類似した上位 k 個のドキュメントを返す"""
         query_embed = self.embedding_model.embed(query)
         scores = [self._cosine(query_embed, embed) for embed in self.embeddings]
-        ranked = sorted(
-          range(len(scores)), key=lambda i: scores[i], reverse=True
-        )
+        ranked = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)
         return [self.documents[index] for index in ranked[:3]]
 
     def _cosine(self, a: list[float], b: list[float]) -> float:
@@ -107,3 +104,34 @@ Question: {content}"""
         dot = sum(x * y for x, y in zip(a, b))
         norm = (sum(x * x for x in a) ** 0.5) * (sum(x * x for x in b) ** 0.5)
         return dot / norm
+
+
+class MultimodalMemory(Memory):
+    """Memory クラスに「画像データ」も会話履歴に含められるよう拡張したクラス"""
+
+    def add(
+        self,
+        role: str,
+        content: str,
+        tool_call: dict = None,
+        image_data: str = None,
+    ):
+        """Add a message to memory."""
+        # Image
+        if image_data:
+            is_url = image_data.startswith(("http://", "https://"))
+            url = image_data if is_url else f"data:image/png;base64,{image_data}"
+            content = [
+                {"type": "image_url", "image_url": {"url": url}},
+                {"type": "text", "text": content},
+            ]
+
+        # Main message
+        message = {"role": role, "content": content}
+
+        # Tool call
+        if tool_call:
+            message["tool_calls"] = [tool_call]
+
+        # Append message to memory
+        self.messages.append(message)
